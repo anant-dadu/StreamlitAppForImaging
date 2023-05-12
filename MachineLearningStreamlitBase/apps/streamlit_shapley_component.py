@@ -114,14 +114,17 @@ def app():
     inds = []
     if True: # st.checkbox("Show Dependence Plots"):
         feature_name = st.selectbox('Select a feature for dependence plot', options=top20_features)
-        try:
-            inds = shap.utils.potential_interactions(ad_shap_obj[:, feature_name], ad_shap_obj)
-        except:
-            st.info("Select Another Feature")
-        # st.write(inds)
-
+        
+        @st.cache_data
+        def get_inds(feature_name):
+            try:
+                return shap.utils.potential_interactions(ad_shap_obj[:, feature_name], ad_shap_obj)
+            except:
+                return []
+        
+        inds = get_inds(feature_name)
         if len(inds) <= 3:
-            pass
+            st.info("Select Another Feature")
         else:
 
             st.write('Top-3 Potential Interactions for ***{}***'.format(feature_name))
