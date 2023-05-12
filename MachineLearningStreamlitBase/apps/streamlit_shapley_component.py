@@ -143,4 +143,4 @@ def app():
                     # shap.dependence_plot(feature_name, np.array(ad_shap_obj.values), ad_shap_obj.data, interaction_index=list(ad_shap_obj.feature_names).index(list(ad_shap_obj.feature_names)[inds[2]]))
                     st.pyplot()
 
-                get_interaction_plot(feature_name, inds)
+            get_interaction_plot(feature_name, inds)
