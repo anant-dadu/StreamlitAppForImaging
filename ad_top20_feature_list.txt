@@ -1,0 +1,20 @@
+thk left hippocampushipplr
+vol left hippocampushipplr
+thk left middle temporaldktcortex
+thk temporal ldktlobes
+vol left dg ca3mtl
+thk temporal rdktlobes
+thk left middle temporaldktregions
+thk wmtissues
+thk occipital rdktlobes
+area right insuladktcortex
+thk right hippocampushipplr
+area left inferior parietaldktregions
+vol left inferior temporaldktcortex
+thk cerebellumtissues
+thk right pericalcarinedktcortex
+thk right pericalcarinedktregions
+vol right fusiformdktregions
+vol right hippocampushipplr
+thk cerebellum rdktlobes
+area right lingualdktregions

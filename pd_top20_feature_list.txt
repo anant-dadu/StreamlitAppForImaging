@@ -1,0 +1,20 @@
+vol mtg sn snc leftcit168
+vol right pars orbitalisdktregions
+vol brain stemdktregions
+vol parietal ldktlobes
+area left perirhinalmtl
+thk mtg sn snc leftcit168
+vol mtg sn snc leftdeep cit168
+thk mtg sn snr leftcit168
+vol referenceregion rightcit168
+vol mtg vtr pbp leftcit168
+vol bn gp gpe rightcit168
+vol mtg sn snc rightcit168
+thk mtg vtr pbp rightcit168
+vol right rostral middle frontaldktregions
+thk bn gp gpe rightcit168
+thk thm eth hn leftcit168
+thk right parahippocampaldktregions
+randbasisproj09
+vol left cerebellum white matterdktregions
+vol cerebellar vermal lobules i vdktregions
