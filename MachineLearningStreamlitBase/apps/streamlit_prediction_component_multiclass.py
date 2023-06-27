@@ -17,11 +17,15 @@ import lightgbm as lgb
 import seaborn as sns
 import plotly.express as px
 import altair
+import requests
 
 def process_name(x):
     return x.replace('id_invicrot1_', '').replace('_', ' ')
 
 def app():
+    st.experimental_set_query_params(
+        show_map=True,
+    )
     st.markdown("""<style>.big-font {font-size:100px !important;}</style>""", unsafe_allow_html=True) 
     st.markdown(
         """<style>
@@ -55,7 +59,14 @@ def app():
     for col in X_new.columns:
             numerical_columns.append(col) 
     
+    uploaded_file = st.file_uploader("Upload nifti file")
+    st.experimental_get_query_params()
+    response = requests.get("https://antspyt1w-htco5r3hya-ue.a.run.app/justants")
+    st.write(response.status_code)
+    st.write(response.json())
+
     st.write('### Please enter the following {} factors to perform prediction or select a random patient'.format(len(categorical_columns + numerical_columns)))
+
     from collections import defaultdict
     if st.button("Random Patient"):
         import random
