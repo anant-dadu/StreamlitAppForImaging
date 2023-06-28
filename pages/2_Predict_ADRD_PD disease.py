@@ -94,66 +94,67 @@ def app():
     image_id = None
     features_exists = False
     # st.write(get_params)
-    if not len(get_params) == 0:
-        image_id = get_params['image_id'][0]
-        features_exists, r_features_exists = performAPI(image_id)
-    else:
-        uploaded_file = st.file_uploader("Upload nifti file")
-        if not uploaded_file:
-            pass
+    if False:
+        if not len(get_params) == 0:
+            image_id = get_params['image_id'][0]
+            features_exists, r_features_exists = performAPI(image_id)
         else:
-            image_id = uploaded_file.name
-            r_file_exists = requests.get(f"http://127.0.0.1:45227/checkImagingRaw/{image_id}")
-            file_exists = 0 if r_file_exists.status_code == 404 else 1
-            if file_exists:
-                features_exists, r_features_exists = performAPI(image_id)
+            uploaded_file = st.file_uploader("Upload nifti file")
+            if not uploaded_file:
+                pass
             else:
-                # if data is not there submit it as process cannot be running
-                # should use features_exists, r_features_exists = performAPI(image_id)
-                # but the problem is uploading time and performAPI shows no file exists
-                store_data(uploaded_file, image_id)
-                response = requests.get(f"http://127.0.0.1:45227/extractImagingFeatures/{image_id}")
-                if not features_exists and response.status_code==200:
-                    st.info(f"Your image processing job is submitted. Please note the link to check the results. It will take about 30-45 minutes to process. Link here {image_id}")
-
-    if features_exists:
-        with open("ad_top20_feature_list.txt", 'r') as f:
-            ad_top20_features = f.read().split("\n")
-
-        with open("pd_top20_feature_list.txt", 'r') as f:
-            pd_top20_features = f.read().split("\n")
-        imaging_features = pd.read_json(r_features_exists.json()['imaging_features'])
-        imaging_features.columns = [col.replace('/', '_').replace('-', '_').lower() for col in imaging_features.columns]
-        ad_top20_features = [col.replace(' ', '_') for col in ad_top20_features]
-        pd_top20_features = [col.replace(' ', '_') for col in pd_top20_features]
-        ad_intersected_features = list(set(ad_top20_features).intersection(set(imaging_features.columns)))
-        pd_intersected_features = list(set(pd_top20_features).intersection(set(imaging_features.columns)))
-        F = pd.read_csv("min_max_values.csv")
-        F = F.set_index('feature_name')
-        F.index = F.index.map(lambda x: x.replace('id_invicrot1_', ''))
-        ad_dataframe = (imaging_features[ad_intersected_features] - F.loc[ad_intersected_features]['min_value']) / (
-                    F.loc[ad_intersected_features]['max_value'] - F.loc[ad_intersected_features]['min_value'])
-        pd_dataframe = (imaging_features[pd_intersected_features] - F.loc[pd_intersected_features]['min_value']) / (
-                    F.loc[pd_intersected_features]['max_value'] - F.loc[pd_intersected_features]['min_value'])
-
-        ad_dataframe.columns = ad_dataframe.columns.map(lambda x: f'id_invicrot1_{x}')
-        pd_dataframe.columns = pd_dataframe.columns.map(lambda x: f'id_invicrot1_{x}')
-        # st.write(ad_dataframe)
-        # st.write(X)
-        # st.write(ad_dataframe)
-        # st.write(ad_dataframe[X.columns])
-        # st.write(X)
-        csv = convert_df(imaging_features)
-        # col1, col2 = st.columns(2)
-        st.download_button(
-            label="Download extracted features as CSV",
-            data=csv,
-            file_name=f'{image_id}_extracted_image_features.csv',
-            mime='text/csv',
-        )
-
-    else:
-        image_id = None
+                image_id = uploaded_file.name
+                r_file_exists = requests.get(f"http://127.0.0.1:45227/checkImagingRaw/{image_id}")
+                file_exists = 0 if r_file_exists.status_code == 404 else 1
+                if file_exists:
+                    features_exists, r_features_exists = performAPI(image_id)
+                else:
+                    # if data is not there submit it as process cannot be running
+                    # should use features_exists, r_features_exists = performAPI(image_id)
+                    # but the problem is uploading time and performAPI shows no file exists
+                    store_data(uploaded_file, image_id)
+                    response = requests.get(f"http://127.0.0.1:45227/extractImagingFeatures/{image_id}")
+                    if not features_exists and response.status_code==200:
+                        st.info(f"Your image processing job is submitted. Please note the link to check the results. It will take about 30-45 minutes to process. Link here {image_id}")
+    
+        if features_exists:
+            with open("ad_top20_feature_list.txt", 'r') as f:
+                ad_top20_features = f.read().split("\n")
+    
+            with open("pd_top20_feature_list.txt", 'r') as f:
+                pd_top20_features = f.read().split("\n")
+            imaging_features = pd.read_json(r_features_exists.json()['imaging_features'])
+            imaging_features.columns = [col.replace('/', '_').replace('-', '_').lower() for col in imaging_features.columns]
+            ad_top20_features = [col.replace(' ', '_') for col in ad_top20_features]
+            pd_top20_features = [col.replace(' ', '_') for col in pd_top20_features]
+            ad_intersected_features = list(set(ad_top20_features).intersection(set(imaging_features.columns)))
+            pd_intersected_features = list(set(pd_top20_features).intersection(set(imaging_features.columns)))
+            F = pd.read_csv("min_max_values.csv")
+            F = F.set_index('feature_name')
+            F.index = F.index.map(lambda x: x.replace('id_invicrot1_', ''))
+            ad_dataframe = (imaging_features[ad_intersected_features] - F.loc[ad_intersected_features]['min_value']) / (
+                        F.loc[ad_intersected_features]['max_value'] - F.loc[ad_intersected_features]['min_value'])
+            pd_dataframe = (imaging_features[pd_intersected_features] - F.loc[pd_intersected_features]['min_value']) / (
+                        F.loc[pd_intersected_features]['max_value'] - F.loc[pd_intersected_features]['min_value'])
+    
+            ad_dataframe.columns = ad_dataframe.columns.map(lambda x: f'id_invicrot1_{x}')
+            pd_dataframe.columns = pd_dataframe.columns.map(lambda x: f'id_invicrot1_{x}')
+            # st.write(ad_dataframe)
+            # st.write(X)
+            # st.write(ad_dataframe)
+            # st.write(ad_dataframe[X.columns])
+            # st.write(X)
+            csv = convert_df(imaging_features)
+            # col1, col2 = st.columns(2)
+            st.download_button(
+                label="Download extracted features as CSV",
+                data=csv,
+                file_name=f'{image_id}_extracted_image_features.csv',
+                mime='text/csv',
+            )
+    
+        else:
+            image_id = None
 
     select_disease = st.selectbox("Select the disease", options=['ADRD', 'PD'])
     if select_disease == 'ADRD':
