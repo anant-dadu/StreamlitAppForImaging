@@ -24,6 +24,9 @@ import altair
 import subprocess
 import requests
 import pipes
+from google.cloud import storage
+
+myurl = "https://antspyt1w-htco5r3hya-uc.a.run.app"
 
 def process_name(x):
     return x.replace('id_invicrot1_', '').replace('_', ' ')
@@ -33,27 +36,34 @@ def convert_df(df):
     return df.to_csv(index=False).encode('utf-8')
 
 def store_data(uploaded_file, save_name):
-    with open(save_name, 'wb') as out:
-        out.write(uploaded_file.getbuffer())
+    file = {'file': uploaded_file}
+    r_status = requests.post(url=myurl + '/uploadRawImages', files=file)
 
-    result = subprocess.run(f"scp {save_name} dadua2@helix.nih.gov:/home/dadua2/Deployment/driveData/rawImages/", shell=True)
-    if not result.stderr:
+    # url = 'http://0.0.0.0:8080/uploadRawImages'
+    # file = {'file': open('/Users/dadua2/Projects/sampleT1wmri.nii.gz', 'rb')}
+    # resp = requests.post(url=url, files=file)
+
+    # with open('/tmp/' + save_name, 'wb') as out:
+    #     out.write(uploaded_file.getbuffer())
+    # myobj = {'image_id': '/tmp/' + save_name}
+    # r_status = requests.post(f"{myurl}/uploadRawImages", json=myobj)
+    if not r_status.status_code == 404:
         st.info("File transferred to server")
     else:
         raise Exception('File transfer fail')
 
 def performAPI(image_id):
-    r_file_exists = requests.get(f"http://127.0.0.1:45227/checkImagingRaw/{image_id}")
-    r_features_exists = requests.get(f"http://127.0.0.1:45227/checkImagingFeatures/{image_id}")
+    r_file_exists = requests.get(f"{myurl}/checkImagingRaw/{image_id}")
+    r_features_exists = requests.get(f"{myurl}/checkImagingFeatures/{image_id}")
     file_exists = 0 if r_file_exists.status_code == 404 else 1
     features_exists = 0 if r_features_exists.status_code == 404 else 1
     if file_exists:
         if not features_exists:
-            r_status = requests.get(f"http://127.0.0.1:45227/imageStatus/{image_id}")
+            r_status = requests.get(f"{myurl}/imageStatus/{image_id}")
             if r_status.status_code == 404:
                 st.info("Preprocessing has not started yet.")
                 if st.button("Click to submit"):
-                    response = requests.get(f"http://127.0.0.1:45227/extractImagingFeatures/{image_id}")
+                    response = requests.get(f"{myurl}/extractImagingFeatures/{image_id}")
                     if response.status_code == 200:
                         st.info(f"Your image processing job is submitted. Please note the link to check the results. It will take about 30-45 minutes to process. Link here {image_id}")
             else:
@@ -63,7 +73,7 @@ def performAPI(image_id):
                 elif temp == "completed with error":
                     st.info("Some error occured. Please rerun")
                     if st.button("Click to re-submit"):
-                        response = requests.get(f"http://127.0.0.1:45227/extractImagingFeatures/{image_id}")
+                        response = requests.get(f"{myurl}/extractImagingFeatures/{image_id}")
                         if response.status_code == 200:
                             st.info(f"Your image processing job is submitted. Please note the link to check the results. It will take about 30-45 minutes to process. Link here {image_id}")
                 else:
@@ -94,7 +104,7 @@ def app():
     image_id = None
     features_exists = False
     # st.write(get_params)
-    if False:
+    if True:
         if not len(get_params) == 0:
             image_id = get_params['image_id'][0]
             features_exists, r_features_exists = performAPI(image_id)
@@ -104,7 +114,7 @@ def app():
                 pass
             else:
                 image_id = uploaded_file.name
-                r_file_exists = requests.get(f"http://127.0.0.1:45227/checkImagingRaw/{image_id}")
+                r_file_exists = requests.get(f"{myurl}/checkImagingRaw/{image_id}")
                 file_exists = 0 if r_file_exists.status_code == 404 else 1
                 if file_exists:
                     features_exists, r_features_exists = performAPI(image_id)
@@ -113,7 +123,7 @@ def app():
                     # should use features_exists, r_features_exists = performAPI(image_id)
                     # but the problem is uploading time and performAPI shows no file exists
                     store_data(uploaded_file, image_id)
-                    response = requests.get(f"http://127.0.0.1:45227/extractImagingFeatures/{image_id}")
+                    response = requests.get(f"{myurl}/extractImagingFeatures/{image_id}")
                     if not features_exists and response.status_code==200:
                         st.info(f"Your image processing job is submitted. Please note the link to check the results. It will take about 30-45 minutes to process. Link here {image_id}")
     
