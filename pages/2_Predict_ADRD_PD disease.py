@@ -57,9 +57,9 @@ def executeAPI(image_id, email, features_exists=True):
             # return response
 
         # if not features_exists:
-        # daemon = Thread(target=job_monitor, daemon=False, name='Monitor')
-        # daemon.start()
-        response = subprocess.Popen(["curl", "-v", f"{myurl}/extractImagingFeatures/{image_id}\?email\={email}", "&"])
+        daemon = Thread(target=job_monitor, daemon=False, name='Monitor')
+        daemon.start()
+        # response = subprocess.Popen(["curl", "-v", f"{myurl}/extractImagingFeatures/{image_id}\?email\={email}", "&"])
         # _ = subprocess.Popen(["curl", "-v", f"{myurl}/extractImagingFeatures/{image_id}?email={email}", "&"])
         st.info(f"Your image processing job is submitted. You will recieve an email with the link to check the results. It will take about 30-45 minutes to process.")
 
