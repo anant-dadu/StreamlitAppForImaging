@@ -27,6 +27,45 @@ import pipes
 from google.cloud import storage
 
 myurl = "https://antspyt1w-htco5r3hya-uc.a.run.app"
+myurl = "https://nextflowbatchapi-htco5r3hya-uc.a.run.app"
+
+
+import asyncio
+from threading import Thread
+
+def executeAPI(image_id, email, features_exists=True):
+        # e = 0
+        # while e < 3:
+        #    print('Check triggered jobs on the cluster', e)
+        #    e += 1
+        #    await asyncio.sleep(2)
+            # if e > 5:
+            #     raise Exception("Error founf")
+    # def stop():
+    #    task.cancel()
+    # loop = asyncio.get_event_loop()
+    # loop.call_later(5, stop)
+    # task = loop.create_task(job_monitor())
+
+    try:
+        def job_monitor():
+            # print(f"{myurl}/extractImagingFeatures/{image_id}?email={email}")
+            # st.write(f"{myurl}/extractImagingFeatures/{image_id}?email={email}")
+            # response = 200
+            response = requests.get(f"{myurl}/extractImagingFeatures/{image_id}?email={email}")
+            # return response
+
+        # if not features_exists:
+        daemon = Thread(target=job_monitor, daemon=False, name='Monitor')
+        daemon.start()
+        st.info(f"Your image processing job is submitted. You will recieve an email with the link to check the results. It will take about 30-45 minutes to process.")
+
+        # asyncio.run(job_monitor())
+        # response = loop.run_until_complete(task)
+        # if response.status_code == 200:
+        # print ("Job completed")
+    except: #  asyncio.CancelledError
+        print ("Job submission encountered an error")
 
 def process_name(x):
     return x.replace('id_invicrot1_', '').replace('_', ' ')
@@ -52,20 +91,27 @@ def store_data(uploaded_file, save_name):
     else:
         raise Exception('File transfer fail')
 
-def performAPI(image_id):
+def performAPI(image_id="dummy.nii.gz", email="anantdadu000@gmail.com", code=None):
+    if code:
+        r_features_exists = requests.get(f"{myurl}/checkImagingFeaturesUsingcode/{code}")
+        features_exists = 0 if r_features_exists.status_code == 404 else 1
+    else:
+        r_features_exists = requests.get(f"{myurl}/checkImagingFeatures/{image_id}?email={email}")
+        features_exists = 0 if r_features_exists.status_code == 404 else 1
     r_file_exists = requests.get(f"{myurl}/checkImagingRaw/{image_id}")
-    r_features_exists = requests.get(f"{myurl}/checkImagingFeatures/{image_id}")
     file_exists = 0 if r_file_exists.status_code == 404 else 1
-    features_exists = 0 if r_features_exists.status_code == 404 else 1
+
     if file_exists:
         if not features_exists:
             r_status = requests.get(f"{myurl}/imageStatus/{image_id}")
             if r_status.status_code == 404:
-                st.info("Preprocessing has not started yet.")
-                if st.button("Click to submit"):
-                    response = requests.get(f"{myurl}/extractImagingFeatures/{image_id}")
-                    if response.status_code == 200:
-                        st.info(f"Your image processing job is submitted. Please note the link to check the results. It will take about 30-45 minutes to process. Link here {image_id}")
+                st.info("Preprocessing has not started yet. We are resubmitting the job.")
+                # if st.button("Click to submit"):
+                executeAPI(image_id, email, features_exists=False)
+                    # response = requests.get(f"{myurl}/extractImagingFeatures/{image_id}")
+                    # st.write("Hello, I am requesting job to submit", response.status_code, image_id, myurl)
+                    # if response.status_code == 200:
+                    #    st.info(f"Your image processing job is submitted. Please note the link to check the results. It will take about 30-45 minutes to process. Link here {image_id}")
             else:
                 temp = r_status.json()['job_status'].strip()
                 if temp == "running":
@@ -73,15 +119,22 @@ def performAPI(image_id):
                 elif temp == "completed with error":
                     st.info("Some error occured. Please rerun")
                     if st.button("Click to re-submit"):
-                        response = requests.get(f"{myurl}/extractImagingFeatures/{image_id}")
-                        if response.status_code == 200:
-                            st.info(f"Your image processing job is submitted. Please note the link to check the results. It will take about 30-45 minutes to process. Link here {image_id}")
+                        executeAPI(image_id, email, features_exists=False)
+                        # response = requests.get(f"{myurl}/extractImagingFeatures/{image_id}")
+                        # if response.status_code == 200:
+                        #    st.info(f"Your image processing job is submitted. Please note the link to check the results. It will take about 30-45 minutes to process. Link here {image_id}")
                 else:
-                        st.info("should be successfully completed")
+                        st.info("Your job should be successfully completed. Please re-upload image with different name.")
         else:
             st.info("Congrats! your image has processed. Check diagnostic reports.")
     else:
-        st.info("No such image exists.")
+        if not code:
+            st.info("No such image exists.")
+    if code:
+        if features_exists:
+            st.info("Congrats! your image has processed. Check diagnostic reports.")
+        else:
+            st.info("No such image exists or your job encountered an error.")
     return features_exists, r_features_exists
 
 def app():
@@ -106,27 +159,38 @@ def app():
     # st.write(get_params)
     if True:
         if not len(get_params) == 0:
-            image_id = get_params['image_id'][0]
-            features_exists, r_features_exists = performAPI(image_id)
+            # image_id = get_params['image_id'][0]
+            code = get_params['code'][0]
+            features_exists, r_features_exists = performAPI(code=code)
         else:
-            uploaded_file = st.file_uploader("Upload nifti file")
-            if not uploaded_file:
-                pass
-            else:
-                image_id = uploaded_file.name
-                r_file_exists = requests.get(f"{myurl}/checkImagingRaw/{image_id}")
-                file_exists = 0 if r_file_exists.status_code == 404 else 1
-                if file_exists:
-                    features_exists, r_features_exists = performAPI(image_id)
-                else:
-                    # if data is not there submit it as process cannot be running
-                    # should use features_exists, r_features_exists = performAPI(image_id)
-                    # but the problem is uploading time and performAPI shows no file exists
-                    store_data(uploaded_file, image_id)
-                    response = requests.get(f"{myurl}/extractImagingFeatures/{image_id}")
-                    if not features_exists and response.status_code==200:
-                        st.info(f"Your image processing job is submitted. Please note the link to check the results. It will take about 30-45 minutes to process. Link here {image_id}")
-    
+
+            with st.form("my_form"):
+                uploaded_file = st.file_uploader("Upload nifti file")
+                email = st.text_input('Email', 'anantdadu@gmail.com')
+                # Every form must have a submit button.
+                submitted = st.form_submit_button("Submit")
+
+            if submitted:
+                    if not uploaded_file:
+                        pass
+                    else:
+                        image_id = uploaded_file.name
+                        r_file_exists = requests.get(f"{myurl}/checkImagingRaw/{image_id}")
+                        file_exists = 0 if r_file_exists.status_code == 404 else 1
+                        if file_exists:
+                            print ("File exists")
+                            features_exists, r_features_exists = performAPI(image_id, email)
+                        else:
+                            # if data is not there submit it as process cannot be running
+                            # should use features_exists, r_features_exists = performAPI(image_id)
+                            # but the problem is uploading time and performAPI shows no file exists
+                            store_data(uploaded_file, image_id)
+                            executeAPI(image_id, email, features_exists)
+
+                        # response = requests.get(f"{myurl}/extractImagingFeatures/{image_id}?email={email}")
+                        # if not features_exists and response.status_code==200:
+                        #    st.info(f"Your image processing job is submitted. Please note the link to check the results. It will take about 30-45 minutes to process. Link here {image_id}")
+
         if features_exists:
             with open("ad_top20_feature_list.txt", 'r') as f:
                 ad_top20_features = f.read().split("\n")
