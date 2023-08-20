@@ -32,7 +32,7 @@ myurl = "https://nextflowbatchapi-htco5r3hya-uc.a.run.app"
 
 import asyncio
 from threading import Thread
-
+import subprocess
 def executeAPI(image_id, email, features_exists=True):
         # e = 0
         # while e < 3:
@@ -52,12 +52,15 @@ def executeAPI(image_id, email, features_exists=True):
             # print(f"{myurl}/extractImagingFeatures/{image_id}?email={email}")
             # st.write(f"{myurl}/extractImagingFeatures/{image_id}?email={email}")
             # response = 200
-            response = requests.get(f"{myurl}/extractImagingFeatures/{image_id}?email={email}")
+            # response = subprocess.run(["curl", "-v", f"{myurl}/extractImagingFeatures/{image_id}?email={email}", "&"])
+            response = requests.get(f"{myurl}/extractImagingFeatures/{image_id}?email={email}", timeout=3600)
             # return response
 
         # if not features_exists:
         daemon = Thread(target=job_monitor, daemon=False, name='Monitor')
         daemon.start()
+        # response = subprocess.Popen(["curl", "-v", f"{myurl}/extractImagingFeatures/{image_id}\?email\={email}", "&"])
+        # _ = subprocess.Popen(["curl", "-v", f"{myurl}/extractImagingFeatures/{image_id}?email={email}", "&"])
         st.info(f"Your image processing job is submitted. You will recieve an email with the link to check the results. It will take about 30-45 minutes to process.")
 
         # asyncio.run(job_monitor())
