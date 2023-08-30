@@ -174,10 +174,11 @@ def app():
                 submitted = st.form_submit_button("Submit")
 
             if submitted:
-                    if not uploaded_file:
+                    if not uploaded_file or not email:
                         pass
                     else:
-                        image_id = email.replace('@', '_') + '_' + uploaded_file.name
+                        uploaded_file.name = email.replace('@', '_') + '_' + uploaded_file.name 
+                        image_id = uploaded_file.name 
                         r_file_exists = requests.get(f"{myurl}/checkImagingRaw/{image_id}")
                         file_exists = 0 if r_file_exists.status_code == 404 else 1
                         if file_exists:
