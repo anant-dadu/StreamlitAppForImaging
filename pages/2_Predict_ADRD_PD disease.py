@@ -164,6 +164,7 @@ def app():
         if not len(get_params) == 0:
             # image_id = get_params['image_id'][0]
             code = get_params['code'][0]
+            image_id = code
             features_exists, r_features_exists = performAPI(code=code)
         else:
 
@@ -227,7 +228,7 @@ def app():
             st.download_button(
                 label="Download extracted features as CSV",
                 data=csv,
-                file_name=f'{code}_extracted_image_features.csv',
+                file_name=f'{image_id}_extracted_image_features.csv',
                 mime='text/csv',
             )
     
