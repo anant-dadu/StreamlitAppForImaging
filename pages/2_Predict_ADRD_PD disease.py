@@ -170,7 +170,7 @@ def app():
 
             with st.form("my_form"):
                 uploaded_file = st.file_uploader("Upload nifti file")
-                email = st.text_input('Email', placeholder='anantdadu@gmail.com')
+                email = st.text_input('Email', placeholder='johndoe@gmail.com')
                 # Every form must have a submit button.
                 submitted = st.form_submit_button("Submit")
 
