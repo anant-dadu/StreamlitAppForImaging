@@ -227,7 +227,7 @@ def app():
             st.download_button(
                 label="Download extracted features as CSV",
                 data=csv,
-                file_name=f'{image_id}_extracted_image_features.csv',
+                file_name=f'{code}_extracted_image_features.csv',
                 mime='text/csv',
             )
     
