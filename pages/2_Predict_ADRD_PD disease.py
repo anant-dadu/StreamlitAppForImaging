@@ -169,7 +169,7 @@ def app():
 
             with st.form("my_form"):
                 uploaded_file = st.file_uploader("Upload nifti file")
-                email = st.text_input('Email', 'anantdadu@gmail.com')
+                email = st.text_input('Email', placeholder='anantdadu@gmail.com')
                 # Every form must have a submit button.
                 submitted = st.form_submit_button("Submit")
 
@@ -177,7 +177,7 @@ def app():
                     if not uploaded_file:
                         pass
                     else:
-                        image_id = uploaded_file.name
+                        image_id = email.replace('@', '_') + '_' + uploaded_file.name
                         r_file_exists = requests.get(f"{myurl}/checkImagingRaw/{image_id}")
                         file_exists = 0 if r_file_exists.status_code == 404 else 1
                         if file_exists:
