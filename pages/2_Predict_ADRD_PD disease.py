@@ -268,7 +268,7 @@ def app():
     PLOTTING_DIV11 = cols_dics[1].empty()
 
 
-    with st.expander("Expand for what if analysis"):
+    with st.expander("Expand for what if analysis", expanded=True if image_id is None else False):
         if image_id is not None:
             X.loc[len(X)] = list(ad_dataframe[X.columns].iloc[0]) if select_disease == 'ADRD' else list(pd_dataframe[X.columns].iloc[0])
             select_patient = len(X) - 1
@@ -418,10 +418,15 @@ def app():
                          x=altair.X('Predicted Probability:Q', scale=altair.Scale(domain=[0, 1])),
                          color=altair.Color('color', legend=None),
                      ).properties(width=500, height=300)
-            PLOTTING_DIV00.write(f)
-            # PLOTTING_DIV01.write('#### Model Output Trajectory for {} Class using SHAP values'.format(predicted_class))
-            if show_whatif:
+
+            if image_id is not None:
+                PLOTTING_DIV00.write(f)
+            else:
+                # if show_whatif:
                 st.write(f)
+
+            # PLOTTING_DIV01.write('#### Model Output Trajectory for {} Class using SHAP values'.format(predicted_class))
+
                 # st.write('#### Model Output Trajectory for {} Class using SHAP values'.format(predicted_class))
             # st.write('#### Trajectory for Predicted Class')
 
@@ -431,15 +436,23 @@ def app():
             t1 = t2.copy()
             t1.columns = t1.columns.map(lambda x: feature_mapping.get(x, x).split(' (')[0])
             shap.force_plot(explainer.expected_value, my_shap_values, t1.round(2), show=False, matplotlib=True, contribution_threshold=0.1)
+
+            if image_id is not None:
+                PLOTTING_DIV02.pyplot()
+            else:
+                st.pyplot()
             # if show_whatif:
-            #    st.pyplot()
+            #
             # st.write('#### Trajectory for Predicted Class')
-            PLOTTING_DIV02.pyplot()
+
             t2.columns = t2.columns.map(lambda x: feature_mapping.get(x, x))
             r = shap.decision_plot(explainer.expected_value, my_shap_values, t2.round(2), return_objects=True, new_base_value=0, highlight=0)
             # if show_whatif:
             #     st.pyplot()
-            PLOTTING_DIV03.pyplot()
+            if image_id is not None:
+                PLOTTING_DIV03.pyplot()
+            else:
+                st.pyplot()
             # st.write(my_shap_values)
 
             if image_id is not None:
