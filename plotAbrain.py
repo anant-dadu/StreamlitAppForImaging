@@ -168,7 +168,7 @@ def create_a_plot(F, temp_forP, image_name, cmap_name='coolwarm'):
         for key2, value2 in value.items():
             n_columns = 3
             num_rows = 3
-            fig, axs = plt.subplots(nrows=num_rows, ncols=n_columns, figsize=(182 * n_columns / 30, 9 * num_rows))
+            fig, axs = plt.subplots(nrows=num_rows, ncols=n_columns, figsize=(182 * n_columns / 18, 9 * num_rows))
             plt.subplots_adjust(hspace=0)
             axslist = axs.reshape(-1)
             e = 0
@@ -176,9 +176,9 @@ def create_a_plot(F, temp_forP, image_name, cmap_name='coolwarm'):
                 ax = axslist[e]
                 print(group['name'], axis_number, slice_number, key, key2)
                 if axis_number == 0:
-                    numpy_image = segmented_image[slice_number, :, :]
+                    numpy_image = np.rot90(segmented_image[slice_number, :, :])
                 elif axis_number == 1:
-                    numpy_image = segmented_image[:, slice_number, :]
+                    numpy_image = np.rot90(segmented_image[:, slice_number, :])
                 else:
                     numpy_image = np.rot90(segmented_image[:, :, slice_number])
                 G = value2.copy()
@@ -205,7 +205,7 @@ def create_a_plot(F, temp_forP, image_name, cmap_name='coolwarm'):
 
                 e += 1
             fig.tight_layout()
-            plt.savefig(f"seeImages/{image_name}.png", dpi=100 // num_rows)
+            plt.savefig(f"seeImages/{image_name}.png", dpi=200 // num_rows)
             plt.close()
             # import sys; sys.exit()
 
