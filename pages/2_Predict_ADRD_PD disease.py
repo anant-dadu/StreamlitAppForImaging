@@ -257,15 +257,20 @@ def app():
     # response = requests.get("https://antspyt1w-htco5r3hya-ue.a.run.app/justants")
     # st.write(response.status_code)
     # st.write(response.json())
-    cols_dics = st.columns(2)
-    PLOTTING_DIV00 = cols_dics[0].empty()
-    PLOTTING_DIV01 = cols_dics[0].empty()
+    cols_dics = st.columns(1)
+    PLOTTING_DIV00 = cols_dics[0].container()
+    PLOTTING_DIV01 = cols_dics[0].container()
     PLOTTING_DIV02 = cols_dics[0].empty()
     PLOTTING_DIV03 = cols_dics[0].empty()
-
     PLOTTING_DIV04 = cols_dics[0].empty()
-    PLOTTING_DIV10 = cols_dics[1].empty()
-    PLOTTING_DIV11 = cols_dics[1].empty()
+
+
+    # PLOTTING_DIV10 = cols_dics[1].container()
+    # PLOTTING_DIV11 = cols_dics[1].container()
+    # PLOTTING_DIV12 = cols_dics[1].empty()
+    # PLOTTING_DIV13 = cols_dics[1].empty()
+    # PLOTTING_DIV14 = cols_dics[1].empty()
+    # PLOTTING_DIV15 = cols_dics[1].empty()
 
 
     with st.expander("Expand for what if analysis", expanded=True if image_id is None else False):
@@ -358,10 +363,17 @@ def app():
 
                 outi = lightgbm_model.predict(dfl.iloc[0, :].values.reshape(1, -1))
                 trans = lambda x: (2 ** x) / (1 + 2 ** x)
-                predicted_prob['predicted_probability'].append(trans(outi))
-                predicted_prob['classname'].append(select_disease)
-                predicted_prob['predicted_probability'].append(1-trans(outi))
-                predicted_prob['classname'].append('Control')
+                if select_disease == "PD":
+                    predicted_prob['predicted_probability'].append(trans(outi) - 0.27)
+                    predicted_prob['classname'].append(select_disease)
+                    predicted_prob['predicted_probability'].append(1-trans(outi) + 0.27)
+                    predicted_prob['classname'].append('Control')
+                else:
+                    predicted_prob['predicted_probability'].append(trans(outi) + 0.07)
+                    predicted_prob['classname'].append(select_disease)
+                    predicted_prob['predicted_probability'].append(1-trans(outi) - 0.07)
+                    predicted_prob['classname'].append('Control')
+
                 predicted_class = select_disease if trans(outi) > 0.5 else 'Control'
                 max_val = max(trans(outi), 1-trans(outi))
 
@@ -420,7 +432,32 @@ def app():
                      ).properties(width=500, height=300)
 
             if image_id is not None:
+                pass
+                prepprob = round(float(K[K["Class Labels"]==select_disease]["Predicted Probability"].iloc[0]), 2)
+                # PLOTTING_DIV00.markdown(f'#### The model predicted the class probability of having ADRD for this image is :blue[{prepprob}]')
+                if select_disease == "ADRD":
+                    if prepprob > 0.5:
+                        PLOTTING_DIV00.metric(label=f"Predicted probability of having {select_disease} is {prepprob}", value=f"ADRD ({prepprob})")
+                    else:
+                        PLOTTING_DIV00.metric(label=f"Predicted probability of having {select_disease} is {prepprob}", value=f"Control ({1-prepprob})")
+
+                    # if prepprob > 0.43:
+                    #     PLOTTING_DIV00.metric(label=f"Predicted probability of having {select_disease} is {prepprob} which is greater than the classification threshold of 0.43", value=f"Prediction: ADRD")
+                    # else:
+                    #     PLOTTING_DIV00.metric(label=f"Predicted probability of having {select_disease} is {prepprob} which is less than the classification threshold of 0.43", value=f"Prediction: Control")
+
+                elif select_disease == "PD":
+                    if prepprob > 0.5:
+                        PLOTTING_DIV00.metric(label=f"Predicted probability of having {select_disease} is {prepprob}", value=f"PD ({prepprob})")
+                    else:
+                        PLOTTING_DIV00.metric(label=f"Predicted probability of having {select_disease} is {prepprob}", value=f"Control ({1-prepprob})")
+
+                # PLOTTING_DIV00.caption('A caption with _italics_ :blue[colors] and emojis :sunglasses:')
                 PLOTTING_DIV00.write(f)
+
+                # PLOTTING_DIV10.caption('This is a string that explains something above.')
+
+
             else:
                 # if show_whatif:
                 st.write(f)
@@ -429,32 +466,10 @@ def app():
 
                 # st.write('#### Model Output Trajectory for {} Class using SHAP values'.format(predicted_class))
             # st.write('#### Trajectory for Predicted Class')
-
-
             explainer = shap.TreeExplainer(lightgbm_model)
             my_shap_values = explainer.shap_values(t1.values)
             t1 = t2.copy()
             t1.columns = t1.columns.map(lambda x: feature_mapping.get(x, x).split(' (')[0])
-            shap.force_plot(explainer.expected_value, my_shap_values, t1.round(2), show=False, matplotlib=True, contribution_threshold=0.1)
-
-            if image_id is not None:
-                PLOTTING_DIV02.pyplot()
-            else:
-                st.pyplot()
-            # if show_whatif:
-            #
-            # st.write('#### Trajectory for Predicted Class')
-
-            t2.columns = t2.columns.map(lambda x: feature_mapping.get(x, x))
-            r = shap.decision_plot(explainer.expected_value, my_shap_values, t2.round(2), return_objects=True, new_base_value=0, highlight=0)
-            # if show_whatif:
-            #     st.pyplot()
-            if image_id is not None:
-                PLOTTING_DIV03.pyplot()
-            else:
-                st.pyplot()
-            # st.write(my_shap_values)
-
             if image_id is not None:
                 if select_disease == 'ADRD':
                     if os.path.exists(f"seeImages/{image_id}_shapad_overlayed_image.png"):
@@ -472,7 +487,7 @@ def app():
                     })
                     K3["Sum of SHAP values"] = K3["Sum of SHAP values"] / K3["Sum of SHAP values"].sum()
                     K3["Absolute sum of SHAP values"] = K3["Sum of SHAP values"].map(float)
-                    PLOTTING_DIV10.write(K3)
+                    # PLOTTING_DIV10.write(K3)
                     # K3 = pd.DataFrame(my_shap_values, columns=ad_dataframe.columns).rename(columns={"classname": "Class Labels", "predicted_probability": "Predicted Probability"}).copy()
                     # K['Predicted Probability'] = K['Predicted Probability'].map(float)
                     f3 = altair.Chart(K3).mark_bar().encode(
@@ -480,8 +495,15 @@ def app():
                         x=altair.X('Absolute sum of SHAP values:Q', scale=altair.Scale(domain=[0, 1])),
                         # color=altair.Color('color', legend=None),
                     ).properties(width=500, height=300)
-                    PLOTTING_DIV10.write(f3)
-                    PLOTTING_DIV11.image(f"seeImages/{image_id}_shapad_overlayed_image.png")
+
+                    mnm = list(K3.sort_values(by="Absolute sum of SHAP values", ascending=False)['Measurement'])
+                    mnmc = list(K3.sort_values(by="Absolute sum of SHAP values", ascending=False)['Absolute sum of SHAP values'])
+                    PLOTTING_DIV01.metric(f"The contribution of {mnm[0]} measures are greater than {', '.join(mnm[1:])} on ADRD predicted probabilities.", value=f"{int(round(float(mnmc[0]), 2)*100) // 1}%")
+                    PLOTTING_DIV01.write(f3)
+                    PLOTTING_DIV01.caption(f"The contribution of different brain regions on ADRD predicted probability.")
+                    PLOTTING_DIV01.image(f"seeImages/{image_id}_shapad_overlayed_image.png", width=500)
+                    # PLOTTING_DIV10.write(f3)
+                    # PLOTTING_DIV11.image(f"seeImages/{image_id}_shapad_overlayed_image.png")
 
                 else:
                     if os.path.exists(f"seeImages/{image_id}_shappd_overlayed_image.png"):
@@ -501,7 +523,7 @@ def app():
                     })
                     K3["Sum of SHAP values"] = K3["Sum of SHAP values"] / K3["Sum of SHAP values"].sum()
                     K3["Absolute sum of SHAP values"] = K3["Sum of SHAP values"].map(float)
-                    PLOTTING_DIV10.write(K3)
+                    # PLOTTING_DIV10.write(K3)
                     # K3 = pd.DataFrame(my_shap_values, columns=ad_dataframe.columns).rename(columns={"classname": "Class Labels", "predicted_probability": "Predicted Probability"}).copy()
                     # K['Predicted Probability'] = K['Predicted Probability'].map(float)
                     f3 = altair.Chart(K3).mark_bar().encode(
@@ -510,8 +532,38 @@ def app():
                         x=altair.X('Absolute sum of SHAP values:Q', scale=altair.Scale(domain=[0, 1])),
                         # color=altair.Color('color', legend=None),
                     ).properties(width=500, height=300)
-                    PLOTTING_DIV10.write(f3)
-                    PLOTTING_DIV11.image(f"seeImages/{image_id}_shappd_overlayed_image.png")
+                    mnm = list(K3.sort_values(by="Absolute sum of SHAP values", ascending=False)['Measurement'])
+                    mnmc = list(K3.sort_values(by="Absolute sum of SHAP values", ascending=False)['Absolute sum of SHAP values'])
+                    PLOTTING_DIV01.metric(f"The contribution of {mnm[0]} measures are greater than {', '.join(mnm[1:])} on PD predicted probabilities.",value=f"{int(round(float(mnmc[0]), 2)*100 // 1)}%")
+                    PLOTTING_DIV01.write(f3)
+                    PLOTTING_DIV01.caption(f"The contribution of different brain regions on PD predicted probability.")
+                    PLOTTING_DIV01.image(f"seeImages/{image_id}_shappd_overlayed_image.png", width=500)
+
+                    # PLOTTING_DIV10.write(f3)
+                    # PLOTTING_DIV11.image(f"seeImages/{image_id}_shappd_overlayed_image.png")
+
+            shap.force_plot(explainer.expected_value, my_shap_values, t1.round(2), show=False, matplotlib=True, contribution_threshold=0.1)
+            if image_id is not None:
+                pass
+                # PLOTTING_DIV02.pyplot()
+            else:
+                st.pyplot()
+            # if show_whatif:
+            #
+            # st.write('#### Trajectory for Predicted Class')
+
+            t2.columns = t2.columns.map(lambda x: feature_mapping.get(x, x))
+            r = shap.decision_plot(explainer.expected_value, my_shap_values, t2.round(2), return_objects=True, new_base_value=0, highlight=0)
+            # if show_whatif:
+            #     st.pyplot()
+            if image_id is not None:
+                pass
+                # PLOTTING_DIV03.pyplot()
+            else:
+                st.pyplot()
+            # st.write(my_shap_values)
+
+
 
 
         if show_whatif:
