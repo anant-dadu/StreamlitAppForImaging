@@ -558,7 +558,7 @@ def app():
             # if show_whatif:
             #     st.pyplot()
             if image_id is not None:
-                PDIV021.pyplot()
+                PDIV020.pyplot()
             else:
                 st.pyplot()
 
