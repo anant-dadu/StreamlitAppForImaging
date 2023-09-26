@@ -542,26 +542,23 @@ def app():
                     # PLOTTING_DIV10.write(f3)
                     # PLOTTING_DIV11.image(f"seeImages/{image_id}_shappd_overlayed_image.png")
 
+            PLOTTING_DIV02.caption(f"Model output trajectory for predicted class using SHAP values.")
             shap.force_plot(explainer.expected_value, my_shap_values, t1.round(2), show=False, matplotlib=True, contribution_threshold=0.1)
             if image_id is not None:
                 pass
-                # PLOTTING_DIV02.pyplot()
+                PLOTTING_DIV02.pyplot()
             else:
                 st.pyplot()
-            # if show_whatif:
-            #
-            # st.write('#### Trajectory for Predicted Class')
+
 
             t2.columns = t2.columns.map(lambda x: feature_mapping.get(x, x))
             r = shap.decision_plot(explainer.expected_value, my_shap_values, t2.round(2), return_objects=True, new_base_value=0, highlight=0)
             # if show_whatif:
             #     st.pyplot()
             if image_id is not None:
-                pass
-                # PLOTTING_DIV03.pyplot()
+                PLOTTING_DIV02.pyplot()
             else:
                 st.pyplot()
-            # st.write(my_shap_values)
 
 
 
