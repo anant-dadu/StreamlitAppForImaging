@@ -260,7 +260,7 @@ def app():
     cols_dics = st.columns(1)
     PLOTTING_DIV00 = cols_dics[0].container()
     PLOTTING_DIV01 = cols_dics[0].container()
-    PLOTTING_DIV02 = cols_dics[0].empty()
+    PLOTTING_DIV02 = cols_dics[0].container()
     PLOTTING_DIV03 = cols_dics[0].empty()
     PLOTTING_DIV04 = cols_dics[0].empty()
 
@@ -542,11 +542,13 @@ def app():
                     # PLOTTING_DIV10.write(f3)
                     # PLOTTING_DIV11.image(f"seeImages/{image_id}_shappd_overlayed_image.png")
 
+        
             PLOTTING_DIV02.caption(f"Model output trajectory for predicted class using SHAP values.")
+            PDIV020, PDIV021 = PLOTTING_DIV02.columns(2)
             shap.force_plot(explainer.expected_value, my_shap_values, t1.round(2), show=False, matplotlib=True, contribution_threshold=0.1)
             if image_id is not None:
                 pass
-                PLOTTING_DIV02.pyplot()
+                PDIV020.pyplot()
             else:
                 st.pyplot()
 
@@ -556,7 +558,7 @@ def app():
             # if show_whatif:
             #     st.pyplot()
             if image_id is not None:
-                PLOTTING_DIV02.pyplot()
+                PDIV021.pyplot()
             else:
                 st.pyplot()
 
