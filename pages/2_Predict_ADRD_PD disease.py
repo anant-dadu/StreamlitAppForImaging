@@ -437,9 +437,9 @@ def app():
                 # PLOTTING_DIV00.markdown(f'#### The model predicted the class probability of having ADRD for this image is :blue[{prepprob}]')
                 if select_disease == "ADRD":
                     if prepprob > 0.5:
-                        PLOTTING_DIV00.metric(label=f"Predicted probability of having {select_disease} is {prepprob}", value=f"ADRD ({prepprob})")
+                        PLOTTING_DIV00.metric(label=f"Predicted probability of having {select_disease} is {prepprob}", value=f"Prediction: ADRD with probability {prepprob}")
                     else:
-                        PLOTTING_DIV00.metric(label=f"Predicted probability of having {select_disease} is {prepprob}", value=f"Control ({1-prepprob})")
+                        PLOTTING_DIV00.metric(label=f"Predicted probability of having {select_disease} is {prepprob}", value=f"Control with probability {1-prepprob}")
 
                     # if prepprob > 0.43:
                     #     PLOTTING_DIV00.metric(label=f"Predicted probability of having {select_disease} is {prepprob} which is greater than the classification threshold of 0.43", value=f"Prediction: ADRD")
@@ -448,9 +448,9 @@ def app():
 
                 elif select_disease == "PD":
                     if prepprob > 0.5:
-                        PLOTTING_DIV00.metric(label=f"Predicted probability of having {select_disease} is {prepprob}", value=f"PD ({prepprob})")
+                        PLOTTING_DIV00.metric(label=f"Predicted probability of having {select_disease} is {prepprob}", value=f"PD with probability {prepprob}")
                     else:
-                        PLOTTING_DIV00.metric(label=f"Predicted probability of having {select_disease} is {prepprob}", value=f"Control ({1-prepprob})")
+                        PLOTTING_DIV00.metric(label=f"Predicted probability of having {select_disease} is {prepprob}", value=f"Control with probability {1-prepprob}")
 
                 # PLOTTING_DIV00.caption('A caption with _italics_ :blue[colors] and emojis :sunglasses:')
                 PLOTTING_DIV00.write(f)
