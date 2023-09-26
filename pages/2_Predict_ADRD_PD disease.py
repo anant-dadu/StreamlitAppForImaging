@@ -439,7 +439,7 @@ def app():
                     if prepprob > 0.5:
                         PLOTTING_DIV00.metric(label=f"Predicted probability of having {select_disease} is {prepprob}", value=f"Prediction: ADRD with probability {prepprob}")
                     else:
-                        PLOTTING_DIV00.metric(label=f"Predicted probability of having {select_disease} is {prepprob}", value=f"Prediction: Control with probability {1-prepprob}")
+                        PLOTTING_DIV00.metric(label=f"Predicted probability of having {select_disease} is {prepprob}", value=f"Prediction: Non-ADRD with probability {1-prepprob}")
 
                     # if prepprob > 0.43:
                     #     PLOTTING_DIV00.metric(label=f"Predicted probability of having {select_disease} is {prepprob} which is greater than the classification threshold of 0.43", value=f"Prediction: ADRD")
@@ -450,7 +450,7 @@ def app():
                     if prepprob > 0.5:
                         PLOTTING_DIV00.metric(label=f"Predicted probability of having {select_disease} is {prepprob}", value=f"Prediction: PD with probability {prepprob}")
                     else:
-                        PLOTTING_DIV00.metric(label=f"Predicted probability of having {select_disease} is {prepprob}", value=f"Prediction: Control with probability {1-prepprob}")
+                        PLOTTING_DIV00.metric(label=f"Predicted probability of having {select_disease} is {prepprob}", value=f"Prediction: Non-PD with probability {1-prepprob}")
 
                 # PLOTTING_DIV00.caption('A caption with _italics_ :blue[colors] and emojis :sunglasses:')
                 PLOTTING_DIV00.write(f)
