@@ -130,13 +130,21 @@ def performAPI(image_id="dummy.nii.gz", email="anantdadu000@gmail.com", code=Non
                 else:
                         st.info("Your job should be successfully completed. Please re-upload image with different name.")
         else:
-            st.info("Congrats! your image has processed. Check diagnostic reports.")
+            if image_id == "anantdadu@gmail.com_sample_image.nii.gz":
+                    st.info("Here are the results of an example image. Check diagnostic reports.")
+            else:
+                    st.text("[Click here to upload another image.](https://ndds-brainimaging-ml.streamlit.app/Predict_ADRD_PD_disease)")
+                    st.info("Congrats! your image has processed. Check diagnostic reports.")
     else:
         if not code:
             st.info("No such image exists.")
     if code:
         if features_exists:
-            st.info("Congrats! your image has processed. Check diagnostic reports.")
+            if image_id == "anantdadu@gmail.com_sample_image.nii.gz":
+                    st.info("Here are the results of an example image. Check diagnostic reports.")
+            else:
+                    st.text("[Click here to upload another image.](https://ndds-brainimaging-ml.streamlit.app/Predict_ADRD_PD_disease)")
+                    st.info("Congrats! your image has processed. Check diagnostic reports.")
         else:
             st.info("No such image exists or your job encountered an error.")
     return features_exists, r_features_exists
