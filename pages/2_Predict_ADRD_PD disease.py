@@ -492,6 +492,8 @@ def app():
             t1 = t2.copy()
             t1.columns = t1.columns.map(lambda x: feature_mapping.get(x, x).split(' (')[0])
             if image_id is not None:
+                if image_id == "anantdadu_gmail.com_sample_image.nii.gz":
+                        image_id = "42_0c78bf"
                 if select_disease == 'ADRD':
                     if os.path.exists(f"seeImages/{image_id}_shapad_overlayed_image.png"):
                         pass
