@@ -175,6 +175,8 @@ def app():
                 # Every form must have a submit button.
                 submitted = st.form_submit_button("Submit")
 
+           
+
             if submitted:
                     if not uploaded_file or not email:
                         pass
@@ -192,11 +194,23 @@ def app():
                             # but the problem is uploading time and performAPI shows no file exists
                             store_data(uploaded_file, image_id)
                             executeAPI(image_id, email, features_exists)
-
+            # update start here
+            else:
+                    email = "anantdadu@gmail.com"
+                    uploaded_file = "sample_image.nii.gz"
+                    uploaded_file.name = email.replace('@', '_') + '_' + uploaded_file.name 
+                    image_id = uploaded_file.name 
+                    r_file_exists = requests.get(f"{myurl}/checkImagingRaw/{image_id}")
+                    file_exists = 0 if r_file_exists.status_code == 404 else 1
+                    if file_exists:
+                            print ("File exists")
+                            features_exists, r_features_exists = performAPI(image_id, email)
+          
+                        # https://ndds-brainimaging-ml.streamlit.app/Predict_ADRD_PD_disease?code=22_f7d5a8
                         # response = requests.get(f"{myurl}/extractImagingFeatures/{image_id}?email={email}")
                         # if not features_exists and response.status_code==200:
                         #    st.info(f"Your image processing job is submitted. Please note the link to check the results. It will take about 30-45 minutes to process. Link here {image_id}")
-
+        # update ends here
         if features_exists:
             with open("ad_top20_feature_list.txt", 'r') as f:
                 ad_top20_features = f.read().split("\n")
