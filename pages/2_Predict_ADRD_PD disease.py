@@ -130,7 +130,7 @@ def performAPI(image_id="dummy.nii.gz", email="anantdadu000@gmail.com", code=Non
                 else:
                         st.info("Your job should be successfully completed. Please re-upload image with different name.")
         else:
-            if image_id == "anantdadu@gmail.com_sample_image.nii.gz":
+            if image_id == "anantdadu_gmail.com_sample_image.nii.gz":
                     st.info("Here are the results of an example image. Check diagnostic reports.")
             else:
                     st.write("[Click here to upload another image.](https://ndds-brainimaging-ml.streamlit.app/Predict_ADRD_PD_disease)")
@@ -140,7 +140,7 @@ def performAPI(image_id="dummy.nii.gz", email="anantdadu000@gmail.com", code=Non
             st.info("No such image exists.")
     if code:
         if features_exists:
-            if image_id == "anantdadu@gmail.com_sample_image.nii.gz":
+            if image_id == "anantdadu_gmail.com_sample_image.nii.gz":
                     st.info("Here are the results of an example image. Check diagnostic reports.")
             else:
                     st.write("[Click here to upload another image.](https://ndds-brainimaging-ml.streamlit.app/Predict_ADRD_PD_disease)")
