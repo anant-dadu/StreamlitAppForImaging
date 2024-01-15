@@ -10,6 +10,7 @@ import plotly.express as px
 from pathlib import Path
 from collections import defaultdict
 import plotly
+import dicom2nifti 
 import copy
 import matplotlib.pyplot as plt
 # st.set_option('deprecation.showPyplotGlobalUse', False)
@@ -22,6 +23,7 @@ import seaborn as sns
 import plotly.express as px
 import altair
 import subprocess
+import shutil
 import requests
 import pipes
 from google.cloud import storage
@@ -79,7 +81,10 @@ def convert_df(df):
     return df.to_csv(index=False).encode('utf-8')
 
 def store_data(uploaded_file, save_name):
-    file = {'file': uploaded_file}
+    if 'zip' in uploaded_file.name:
+        file = {'file': open( uploaded_file.name.split('--')[0], 'rb')}
+    else:
+        file = {'file': uploaded_file}
     r_status = requests.post(url=myurl + '/uploadRawImages', files=file)
 
     # url = 'http://0.0.0.0:8080/uploadRawImages'
@@ -178,7 +183,7 @@ def app():
         else:
 
             with st.form("my_form"):
-                uploaded_file = st.file_uploader("Upload nifti file")
+                uploaded_file = st.file_uploader("Upload nifti file or zip of dicom", accept_multiple_files=False)
                 email = st.text_input('Email', placeholder='johndoe@gmail.com')
                 # Every form must have a submit button.
                 submitted = st.form_submit_button("Submit")
@@ -189,8 +194,26 @@ def app():
                     if not uploaded_file or not email:
                         pass
                     else:
+                        import zipfile
+                            
+                        if uploaded_file:
+                            if uploaded_file.type == "application/zip":
+                                os.makedirs("./unzipped_files/", exist_ok=True)
+                                with zipfile.ZipFile(uploaded_file, "r") as z:
+                                    z.extractall("./unzipped_files/")
+                        
+                            fpath = f"./unzipped_files/{uploaded_file.name.split('.')[0]}"
+                            head_mri_dicom = Path(fpath)
+                            os.makedirs(f"./unzipped_files/niftis/{uploaded_file.name.split('.')[0]}", exist_ok=True)
+                            dicom2nifti.convert_directory(head_mri_dicom, f"./unzipped_files/niftis/{uploaded_file.name.split('.')[0]}")
+                            for fname in os.listdir(f"./unzipped_files/niftis/{uploaded_file.name.split('.')[0]}"):
+                                if fname.endswith(".nii.gz"):
+                                    # st.write (fname)
+                                    shutil.copyfile(f"./unzipped_files/niftis/{uploaded_file.name.split('.')[0]}/{fname}", f"{file_uploaded.uploaded_file.split('.')[0]}_{fname}")
+                                    uploaded_file.name = f"{uploaded_file.name.split('.')[0]}_{fname}" + '--zip'
+                         
                         uploaded_file.name = email.replace('@', '_') + '_' + uploaded_file.name 
-                        image_id = uploaded_file.name 
+                        image_id = uploaded_file.name.split('--')[0]
                         r_file_exists = requests.get(f"{myurl}/checkImagingRaw/{image_id}")
                         file_exists = 0 if r_file_exists.status_code == 404 else 1
                         if file_exists:
