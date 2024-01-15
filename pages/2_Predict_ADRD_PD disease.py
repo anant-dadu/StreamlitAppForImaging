@@ -82,7 +82,7 @@ def convert_df(df):
 
 def store_data(uploaded_file, save_name):
     if 'zip' in uploaded_file.name:
-        file = {'file': open( uploaded_file.name.split('--')[0], 'rb')}
+        file = {'file': open( uploaded_file.name.split('--')[0].split('.com_')[1], 'rb')}
     else:
         file = {'file': uploaded_file}
     r_status = requests.post(url=myurl + '/uploadRawImages', files=file)
