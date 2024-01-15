@@ -209,7 +209,7 @@ def app():
                             for fname in os.listdir(f"./unzipped_files/niftis/{uploaded_file.name.split('.')[0]}"):
                                 if fname.endswith(".nii.gz"):
                                     # st.write (fname)
-                                    shutil.copyfile(f"./unzipped_files/niftis/{uploaded_file.name.split('.')[0]}/{fname}", f"{file_uploaded.uploaded_file.split('.')[0]}_{fname}")
+                                    shutil.copyfile(f"./unzipped_files/niftis/{uploaded_file.name.split('.')[0]}/{fname}", f"{uploaded_file.uploaded_file.split('.')[0]}_{fname}")
                                     uploaded_file.name = f"{uploaded_file.name.split('.')[0]}_{fname}" + '--zip'
                          
                         uploaded_file.name = email.replace('@', '_') + '_' + uploaded_file.name 
